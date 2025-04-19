@@ -69,6 +69,11 @@
                 <input type="range" id="tenureSlider" min="5" max="30" value="10" step="1">
                 <span id="tenureValue">10 years</span>
             </div>
+            <div class="slider-container">
+                <span class="slider-label">Tax Rate:</span>
+                <input type="range" id="taxRateSlider" min="0" max="50" value="35" step="1">
+                <span id="taxRateValue">35%</span>
+            </div>
         </div>
 
         <div class="input-group">
@@ -97,10 +102,12 @@
         const slider = document.getElementById('downPaymentSlider');
         const interestRateSlider = document.getElementById('interestRateSlider');
         const tenureSlider = document.getElementById('tenureSlider');
+        const taxRateSlider = document.getElementById('taxRateSlider');
         
         const sliderValue = document.getElementById('sliderValue');
         const interestRateValue = document.getElementById('interestRateValue');
         const tenureValue = document.getElementById('tenureValue');
+        const taxRateValue = document.getElementById('taxRateValue');
         
         const downPaymentDisplay = document.getElementById('downPayment');
         const loanAmountDisplay = document.getElementById('loanAmount');
@@ -113,7 +120,10 @@
 
         const HOME_COST = 1000000;
         const AVAILABLE_FUNDS = 2000000;
-        const TAX_RATE = 0.35; // 35% tax rate
+
+        function getCurrentTaxRate() {
+            return parseFloat(taxRateSlider.value) / 100;
+        }
 
         function calculateEMI(principal, annualRate, years) {
             const monthlyRate = annualRate / 12 / 100;
@@ -124,11 +134,13 @@
         }
 
         function calculatePreTaxYield(postTaxYield) {
-            return postTaxYield / (1 - TAX_RATE);
+            const taxRate = getCurrentTaxRate();
+            return postTaxYield / (1 - taxRate);
         }
 
         function calculatePostTaxYield(preTaxYield) {
-            return preTaxYield * (1 - TAX_RATE);
+            const taxRate = getCurrentTaxRate();
+            return preTaxYield * (1 - taxRate);
         }
 
         function findOptimalDownPayment(targetPreTaxYield) {
@@ -174,6 +186,10 @@
             const downPaymentPercentage = parseInt(slider.value);
             const annualInterestRate = parseFloat(interestRateSlider.value);
             const tenureYears = parseInt(tenureSlider.value);
+            const taxRate = getCurrentTaxRate();
+            
+            // Update tax rate display
+            taxRateValue.textContent = (taxRate * 100).toFixed(0) + '%';
             
             // Calculate down payment and loan amounts
             const downPaymentAmount = (HOME_COST * downPaymentPercentage) / 100;
@@ -212,6 +228,7 @@
         slider.addEventListener('input', updateCalculations);
         interestRateSlider.addEventListener('input', updateCalculations);
         tenureSlider.addEventListener('input', updateCalculations);
+        taxRateSlider.addEventListener('input', updateCalculations);
 
         // Optimize button click handler
         optimizeBtn.addEventListener('click', function() {
@@ -227,4 +244,4 @@
         });
     </script>
 </body>
-</html> 
+</html>
