@@ -53,6 +53,17 @@
         <h1>Dividend Yield Calculator</h1>
         
         <div class="input-group">
+            <h3>Portfolio Configuration</h3>
+            <div>Home Price: <span class="currency">$1,000,000</span> (Fixed)</div>
+            <div class="slider-container">
+                <span class="slider-label">Portfolio Multiplier:</span>
+                <input type="range" id="portfolioMultiplierSlider" min="1" max="5" value="2" step="0.1">
+                <span id="portfolioMultiplierValue">2.0x</span>
+            </div>
+            <div>Available Funds: <span class="currency" id="availableFundsDisplay">$2,000,000</span></div>
+        </div>
+
+        <div class="input-group">
             <h3>Loan Parameters</h3>
             <div class="slider-container">
                 <span class="slider-label">Down Payment:</span>
@@ -88,7 +99,7 @@
 
         <div class="result">
             <div>Home Cost: <span class="currency">$1,000,000</span></div>
-            <div>Available Funds: <span class="currency">$2,000,000</span></div>
+            <div>Portfolio Value: <span class="currency" id="portfolioValue">$2,000,000</span></div>
             <div>Down Payment: <span class="currency" id="downPayment">$200,000</span></div>
             <div>Loan Amount: <span class="currency" id="loanAmount">$800,000</span></div>
             <div>Monthly EMI: <span class="currency" id="monthlyEMI">$6,640</span></div>
@@ -103,11 +114,15 @@
         const interestRateSlider = document.getElementById('interestRateSlider');
         const tenureSlider = document.getElementById('tenureSlider');
         const taxRateSlider = document.getElementById('taxRateSlider');
+        const portfolioMultiplierSlider = document.getElementById('portfolioMultiplierSlider');
         
         const sliderValue = document.getElementById('sliderValue');
         const interestRateValue = document.getElementById('interestRateValue');
         const tenureValue = document.getElementById('tenureValue');
         const taxRateValue = document.getElementById('taxRateValue');
+        const portfolioMultiplierValue = document.getElementById('portfolioMultiplierValue');
+        const portfolioValue = document.getElementById('portfolioValue');
+        const availableFundsDisplay = document.getElementById('availableFundsDisplay');
         
         const downPaymentDisplay = document.getElementById('downPayment');
         const loanAmountDisplay = document.getElementById('loanAmount');
@@ -119,7 +134,11 @@
         const optimizeBtn = document.getElementById('optimizeBtn');
 
         const HOME_COST = 1000000;
-        const AVAILABLE_FUNDS = 2000000;
+        let AVAILABLE_FUNDS = HOME_COST * 2; // This will now be dynamic
+
+        function getAvailableFunds() {
+            return HOME_COST * parseFloat(portfolioMultiplierSlider.value);
+        }
 
         function getCurrentTaxRate() {
             return parseFloat(taxRateSlider.value) / 100;
@@ -182,11 +201,20 @@
         }
 
         function updateCalculations() {
+            // Update available funds based on multiplier
+            AVAILABLE_FUNDS = getAvailableFunds();
+            
             // Get values from sliders
             const downPaymentPercentage = parseInt(slider.value);
             const annualInterestRate = parseFloat(interestRateSlider.value);
             const tenureYears = parseInt(tenureSlider.value);
             const taxRate = getCurrentTaxRate();
+            const portfolioMultiplier = parseFloat(portfolioMultiplierSlider.value);
+            
+            // Update displays for portfolio
+            portfolioMultiplierValue.textContent = portfolioMultiplier.toFixed(1) + 'x';
+            portfolioValue.textContent = '$' + AVAILABLE_FUNDS.toLocaleString();
+            availableFundsDisplay.textContent = '$' + AVAILABLE_FUNDS.toLocaleString();
             
             // Update tax rate display
             taxRateValue.textContent = (taxRate * 100).toFixed(0) + '%';
@@ -229,6 +257,7 @@
         interestRateSlider.addEventListener('input', updateCalculations);
         tenureSlider.addEventListener('input', updateCalculations);
         taxRateSlider.addEventListener('input', updateCalculations);
+        portfolioMultiplierSlider.addEventListener('input', updateCalculations);
 
         // Optimize button click handler
         optimizeBtn.addEventListener('click', function() {
